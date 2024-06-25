@@ -1,0 +1,44 @@
+name: Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: null
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: List contents of the repository
+        run: ls -R
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+
+      - name: Compile Java classes
+        run: |
+          mkdir -p bin
+          javac -d bin -cp "testresources/junit-platform-console-standalone-1.6.0.jar" \
+            src/login2/ToDo.java \
+            src/login2/Task.java \
+            test/login2/ToDoTest.java
+
+      - name: Run JUnit tests
+        run: |
+          java -jar testresources/junit-platform-console-standalone-1.6.0.jar \
+            --class-path bin \
+            --scan-class-path
+
+      - name: List contents of the bin directory
+        run: ls -R bin
+
